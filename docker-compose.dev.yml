@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./pilot-backend
+      dockerfile: Dockerfile
+    container_name: wagtail-backend
+    volumes:
+      - ./pilot-backend:/app
+      - ./sample-db/db.sqlite3:/app/db.sqlite3
+    environment:
+      - DJANGO_SETTINGS_MODULE=mysite.settings.dev
+      - DATABASE_URL=sqlite:///db.sqlite3
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./pilot-frontend
+      dockerfile: Dockerfile.dev
+    container_name: svelte-frontend
+    volumes:
+      - ./pilot-frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PUBLIC_WAGTAIL_API_URL=http://backend:8000/api/v2
+      - PUBLIC_IMAGE_DOMAIN=http://backend:8000
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  backend-static:
+  backend-media:
+
+networks:
+  app-network:
+    driver: bridge

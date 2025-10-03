@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+EXPOSE 5173
+
+ENV NODE_ENV=development
+
+CMD ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0"]
