@@ -33,6 +33,18 @@ services:
     networks:
       - app-network
 
+  notebook:
+    build:
+      context: ./pilot-notebook
+      dockerfile: Dockerfile
+    container_name: jupyter-notebook
+    volumes:
+      - ./pilot-notebook:/workspace
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+
   nginx:
     image: nginx:alpine
     container_name: nginx-proxy

@@ -35,6 +35,18 @@ services:
       - app-network
     command: npm run dev -- --host 0.0.0.0
 
+  notebook:
+    build:
+      context: ./pilot-notebook
+      dockerfile: Dockerfile
+    container_name: jupyter-notebook
+    volumes:
+      - ./pilot-notebook:/workspace
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+
 volumes:
   backend-static:
   backend-media:

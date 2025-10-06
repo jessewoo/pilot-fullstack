@@ -6,6 +6,7 @@ A full-stack web application with a Wagtail CMS backend and SvelteKit frontend, 
 
 - **Backend**: Wagtail CMS (Django) - Headless CMS for content management
 - **Frontend**: SvelteKit - Modern JavaScript framework for the user interface
+- **Notebook**: Jupyter Lab - Data analysis and machine learning environment
 - **Reverse Proxy**: Nginx - Routes requests between frontend and backend
 - **Database**: SQLite (development)
 
@@ -28,6 +29,10 @@ A full-stack web application with a Wagtail CMS backend and SvelteKit frontend, 
 │   │   ├── lib/          # Components and API utilities
 │   │   └── routes/       # SvelteKit routes
 │   └── static/           # Static assets
+│
+├── pilot-notebook/        # Jupyter Lab environment
+│   ├── Dockerfile         # Jupyter Lab Docker setup
+│   └── *.ipynb           # Jupyter notebooks
 │
 ├── nginx/                 # Nginx configuration
 ├── docker-compose.yml     # Production Docker setup
@@ -58,6 +63,7 @@ A full-stack web application with a Wagtail CMS backend and SvelteKit frontend, 
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:8000/api/v2
    - Wagtail Admin: http://localhost:8000/admin
+   - Jupyter Lab: http://localhost:8888
 
 ### Production Mode
 
@@ -70,6 +76,7 @@ A full-stack web application with a Wagtail CMS backend and SvelteKit frontend, 
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000/api/v2
    - Wagtail Admin: http://localhost:8000/admin
+   - Jupyter Lab: http://localhost:8888
    - Nginx Proxy: http://localhost:80
 
 ## Environment Variables
@@ -131,6 +138,21 @@ Key files:
 - `src/routes/+page.server.js` - Home page data
 - `src/routes/[slug]/+page.server.js` - Dynamic page data
 
+### Jupyter Notebook Development
+
+The notebook environment includes:
+- Jupyter Lab interface
+- Pre-installed data science libraries (numpy, pandas, matplotlib, seaborn, scikit-learn)
+- Sample forest fire analysis notebook
+
+Access Jupyter Lab at http://localhost:8888 (no password required in development).
+
+To add more Python packages:
+1. Update `pilot-notebook/Dockerfile` and rebuild:
+   ```bash
+   docker-compose -f docker-compose.dev.yml up --build notebook
+   ```
+
 ### Viewing Logs
 
 ```bash
@@ -140,6 +162,7 @@ docker-compose logs -f
 # Specific service
 docker logs -f svelte-frontend
 docker logs -f wagtail-backend
+docker logs -f jupyter-notebook
 ```
 
 ## CORS Configuration

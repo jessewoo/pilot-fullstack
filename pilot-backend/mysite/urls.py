@@ -7,6 +7,7 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from mysite.api import api_router, page_by_slug
+from mysite import views as auth_views
 
 from search import views as search_views
 
@@ -17,6 +18,10 @@ urlpatterns = [
     path("search/", search_views.search, name="search"),
     path('api/v2/', api_router.urls),
     path('api/v2/page-by-slug/', page_by_slug, name='page_by_slug'),
+    # Authentication endpoints
+    path('api/auth/login/', auth_views.login_view, name='api_login'),
+    path('api/auth/logout/', auth_views.logout_view, name='api_logout'),
+    path('api/auth/user/', auth_views.current_user_view, name='current_user'),
 ]
 
 

@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     'wagtail.api.v2',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     "home",
     "search",
@@ -76,6 +77,12 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://your-frontend-domain.com",
+]
 
 WAGTAILAPI_BASE_URL = 'http://localhost:8000'
 
