@@ -102,3 +102,71 @@ def current_user_view(request):
         return Response({
             'authenticated': False
         }, status=401)
+
+
+@api_view(['POST'])
+@authentication_classes([CsrfExemptSessionAuthentication])
+@permission_classes([AllowAny])
+def register_view(request):
+    """
+    API endpoint for user registration
+    Accepts username, email, password, first_name, last_name
+    """
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
+
+    # Validation
+    if not username or not email or not password:
+        return Response({
+            'success': False,
+            'message': 'Username, email, and password are required'
+        }, status=400)
+
+    # Check if username already exists
+    if User.objects.filter(username=username).exists():
+        return Response({
+            'success': False,
+            'message': 'Username already exists'
+        }, status=400)
+
+    # Check if email already exists
+    if User.objects.filter(email=email).exists():
+        return Response({
+            'success': False,
+            'message': 'Email already exists'
+        }, status=400)
+
+    # Create user
+    try:
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        # Auto-login after registration
+        login(request, user)
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({
+            'success': True,
+            'message': 'User registered successfully',
+            'token': token.key,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+        }, status=201)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Registration failed: {str(e)}'
+        }, status=400)
