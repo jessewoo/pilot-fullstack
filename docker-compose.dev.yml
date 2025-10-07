@@ -8,7 +8,8 @@ services:
     container_name: wagtail-backend
     volumes:
       - ./pilot-backend:/app
-      - ./sample-db/db.sqlite3:/app/db.sqlite3
+      # Use pilot-backend/db.sqlite3 instead of sample-db
+      # - ./sample-db/db.sqlite3:/app/db.sqlite3
     environment:
       - DJANGO_SETTINGS_MODULE=mysite.settings.dev
       - DATABASE_URL=sqlite:///db.sqlite3
