@@ -1,3 +1,4 @@
 Django>=4.2,<5.0
 wagtail>=7.1,<7.2
 django-cors-headers
+djangorestframework-simplejwt>=5.3.0

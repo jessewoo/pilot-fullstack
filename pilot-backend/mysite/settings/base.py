@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'wagtail.api.v2',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     "authentication",
     "home",
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     "team",
     "faq",
     "taxonomy",
+    "sandbox",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -207,3 +210,37 @@ WAGTAILADMIN_BASE_URL = "http://example.com"
 # if untrusted users are allowed to upload files -
 # see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
 WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip']
+
+# JWT Authentication Settings
+# Note: SIGNING_KEY will be set to SECRET_KEY automatically by simplejwt if not specified
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Access token expires in 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),   # Refresh token expires in 7 days
+    'ROTATE_REFRESH_TOKENS': True,                 # Generate new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old refresh tokens
+    'UPDATE_LAST_LOGIN': True,                     # Update last_login field on login
+
+    'ALGORITHM': 'HS256',
+    # SIGNING_KEY defaults to settings.SECRET_KEY if not specified
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}

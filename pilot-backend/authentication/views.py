@@ -1,9 +1,10 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
-from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 
 
@@ -18,7 +19,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 def login_view(request):
     """
     API endpoint for user login
-    Accepts email/username and password, returns auth token
+    Accepts email/username and password, returns JWT access and refresh tokens
     """
     email = request.data.get('email')
     username = request.data.get('username')
@@ -37,11 +38,14 @@ def login_view(request):
 
     if user:
         login(request, user)
-        token, _ = Token.objects.get_or_create(user=user)
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
 
         return Response({
             'success': True,
-            'token': token.key,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
             'user': {
                 'id': user.id,
                 'username': user.username,
@@ -58,28 +62,32 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def logout_view(request):
     """
     API endpoint for user logout
-    Removes auth token and logs out user
+    Blacklists the refresh token and logs out user
     """
-    if request.user.is_authenticated:
-        # Delete the token
-        try:
-            request.user.auth_token.delete()
-        except:
-            pass
+    try:
+        # Get the refresh token from request body
+        refresh_token = request.data.get('refresh')
+
+        if refresh_token:
+            # Blacklist the refresh token
+            token = RefreshToken(refresh_token)
+            token.blacklist()
 
         logout(request)
         return Response({
             'success': True,
             'message': 'Logged out successfully'
         })
-
-    return Response({
-        'success': False,
-        'message': 'Not authenticated'
-    }, status=400)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Logout failed: {str(e)}'
+        }, status=400)
 
 
 @api_view(['GET'])
@@ -111,6 +119,7 @@ def register_view(request):
     """
     API endpoint for user registration
     Accepts username, email, password, first_name, last_name
+    Returns JWT access and refresh tokens
     """
     username = request.data.get('username')
     email = request.data.get('email')
@@ -151,12 +160,15 @@ def register_view(request):
 
         # Auto-login after registration
         login(request, user)
-        token, _ = Token.objects.get_or_create(user=user)
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
 
         return Response({
             'success': True,
             'message': 'User registered successfully',
-            'token': token.key,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
             'user': {
                 'id': user.id,
                 'username': user.username,

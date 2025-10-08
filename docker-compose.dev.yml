@@ -28,6 +28,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - DOCKER_ENV=true
       - PUBLIC_WAGTAIL_API_URL=http://backend:8000/api/v2
       - PUBLIC_IMAGE_DOMAIN=http://backend:8000
     ports:

@@ -117,11 +117,25 @@
                       {/if}
                     </li>
                   {/each}
+                  <!-- User section -->
                   {#if user}
                     <li class="nav-item inner user-nav-item">
                       <span class="nav-label user-name">
                         {user.name || user.email || 'User'}
                       </span>
+                      <ul class="sub-menu">
+                        <li class="sub-item"><a href='/logoff'>Logoff</a></li>
+                      </ul>
+                    </li>
+                  {:else}
+                    <li class="nav-item inner user-nav-item">
+                      <span class="nav-label user-name">
+                        Sign-in
+                      </span>
+                      <ul class="sub-menu">
+                        <li class="sub-item"><a href='/login'>Login</a></li>
+                        <li class="sub-item"><a href='/register'>Register</a></li>
+                      </ul>
                     </li>
                   {/if}
                 </ul>

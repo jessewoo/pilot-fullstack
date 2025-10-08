@@ -27,7 +27,7 @@ services:
     environment:
       - NODE_ENV=production
       - PUBLIC_WAGTAIL_API_URL=http://backend:8000/api/v2
-      - PUBLIC_IMAGE_DOMAIN=http://backend:8000
+      - PUBLIC_IMAGE_DOMAIN=http://localhost
     ports:
       - "3000:3000"
     networks:

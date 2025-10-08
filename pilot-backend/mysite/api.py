@@ -7,6 +7,7 @@ from rest_framework import status, serializers
 from wagtail.models import Page
 from wagtail.images.api.fields import ImageRenditionField
 from navigation.models import NavigationMenu, MenuItem, SubMenuItem
+from sandbox.models import SandboxProjectPage
 
 
 class SubMenuItemSerializer(serializers.ModelSerializer):
@@ -161,6 +162,33 @@ class CustomPagesAPIViewSet(PagesAPIViewSet):
 api_router = WagtailAPIRouter('wagtailapi')
 api_router.register_endpoint('pages', CustomPagesAPIViewSet)
 api_router.register_endpoint('navigation_menus', NavigationMenuAPIViewSet)
+
+
+@api_view(['GET'])
+def sandbox_projects_list(request):
+    """
+    API endpoint to get a simple list of sandbox projects.
+    Usage: /api/v2/sandbox-projects/
+    Returns: Simple array of {title, project_type, slug} objects
+    """
+    try:
+        projects = SandboxProjectPage.objects.live().public()
+
+        result = []
+        for project in projects:
+            result.append({
+                'title': project.title,
+                'project_type': project.project_type,
+                'slug': project.slug,
+            })
+
+        return Response(result)
+
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['GET'])

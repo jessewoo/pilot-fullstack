@@ -73,9 +73,9 @@ export async function getNavigationMenus() {
 
   try {
     const response = await axios.get(`${API_URL}/navigation_menus/`);
-    
+
     // console.log('Fetched navigation menus RESPONSE:', response);
-    
+
     return response.data;
   } catch (error) {
     if (error.response?.status === 404) {
@@ -84,5 +84,16 @@ export async function getNavigationMenus() {
       console.error('Error fetching navigation - getNavigationMenus:', error.message);
     }
     return { items: [] };
+  }
+}
+
+// Fetch sandbox projects list
+export async function getSandboxProjects() {
+  try {
+    const response = await axios.get(`${API_URL}/sandbox-projects/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching sandbox projects:', error);
+    return [];
   }
 }

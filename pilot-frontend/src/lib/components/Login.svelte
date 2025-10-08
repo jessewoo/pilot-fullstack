@@ -27,8 +27,9 @@
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Store token in localStorage
-        localStorage.setItem('authToken', data.token);
+        // Store JWT tokens in localStorage
+        localStorage.setItem('accessToken', data.access);
+        localStorage.setItem('refreshToken', data.refresh);
         localStorage.setItem('user', JSON.stringify(data.user));
 
         // Redirect to home page
