@@ -6,7 +6,7 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
-from mysite.api import api_router, page_by_slug, sandbox_projects_list
+from mysite.api import api_router, page_by_slug, sandbox_projects_list, demonstration_projects_list
 
 from search import views as search_views
 
@@ -18,6 +18,7 @@ urlpatterns = [
     # Custom API endpoints (must come before api_router)
     path('api/v2/page-by-slug/', page_by_slug, name='page_by_slug'),
     path('api/v2/sandbox-projects/', sandbox_projects_list, name='sandbox_projects_list'),
+    path('api/v2/demonstration-projects/', demonstration_projects_list, name='demonstration_projects_list'),
     # Wagtail API router
     path('api/v2/', api_router.urls),
     # Authentication endpoints

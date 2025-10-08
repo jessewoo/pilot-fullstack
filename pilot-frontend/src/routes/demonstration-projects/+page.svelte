@@ -14,14 +14,14 @@
   {/if}
 </svelte:head>
 
-<article class="sandbox-projects-page">
+<article class="demonstration-projects-page">
   <div class="container">
     <h1>{page.title}</h1>
 
     <!-- Page Content -->
-    {#if page.content && Array.isArray(page.content)}
+    {#if (page.content && Array.isArray(page.content)) || (page.body && Array.isArray(page.body))}
       <div class="page-intro">
-        <DynamicPageBody body={page.content} />
+        <DynamicPageBody body={page.content || page.body} />
       </div>
     {/if}
 
@@ -30,7 +30,7 @@
       <div class="projects-section">
         <div class="projects-grid">
           {#each projects as project}
-            <a href="/sandbox-projects/{project.slug}" class="project-card">
+            <a href="/demonstration-projects/{project.slug}" class="project-card">
               <div class="project-type-badge" data-type={project.project_type}>
                 {project.project_type}
               </div>
@@ -41,14 +41,16 @@
         </div>
       </div>
     {:else}
-      <p class="no-projects">No sandbox projects available at this time.</p>
+      <p class="no-projects">No demonstration projects available at this time.</p>
     {/if}
   </div>
 </article>
 
 <style>
-  .sandbox-projects-page {
+  .demonstration-projects-page {
     padding: 60px 20px;
+    /* background: #f8f9fa; */
+    /* min-height: 100vh; */
   }
 
   .container {
@@ -126,19 +128,29 @@
     margin-bottom: 12px;
   }
 
-  .project-type-badge[data-type="classroom"] {
+  .project-type-badge[data-type="research"] {
     background: #e3f2fd;
     color: #1976d2;
   }
 
-  .project-type-badge[data-type="pilot"] {
+  .project-type-badge[data-type="education"] {
     background: #f3e5f5;
     color: #7b1fa2;
   }
 
-  .project-type-badge[data-type="startup"] {
+  .project-type-badge[data-type="infrastructure"] {
     background: #e8f5e9;
     color: #388e3c;
+  }
+
+  .project-type-badge[data-type="application"] {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+
+  .project-type-badge[data-type="other"] {
+    background: #f5f5f5;
+    color: #616161;
   }
 
   .project-card h3 {
@@ -169,7 +181,7 @@
   }
 
   @media (max-width: 768px) {
-    .sandbox-projects-page {
+    .demonstration-projects-page {
       padding: 40px 15px;
     }
 

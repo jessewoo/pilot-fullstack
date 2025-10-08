@@ -8,6 +8,7 @@ from wagtail.models import Page
 from wagtail.images.api.fields import ImageRenditionField
 from navigation.models import NavigationMenu, MenuItem, SubMenuItem
 from sandbox.models import SandboxProjectPage
+from demonstration_projects.models import DemonstrationProjectPage
 
 
 class SubMenuItemSerializer(serializers.ModelSerializer):
@@ -192,6 +193,33 @@ def sandbox_projects_list(request):
 
 
 @api_view(['GET'])
+def demonstration_projects_list(request):
+    """
+    API endpoint to get a simple list of demonstration projects.
+    Usage: /api/v2/demonstration-projects/
+    Returns: Simple array of {title, project_type, slug} objects
+    """
+    try:
+        projects = DemonstrationProjectPage.objects.live().public()
+
+        result = []
+        for project in projects:
+            result.append({
+                'title': project.title,
+                'project_type': project.project_type,
+                'slug': project.slug,
+            })
+
+        return Response(result)
+
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
 def page_by_slug(request):
     """
     API endpoint to get a page by slug with all fields.
@@ -256,6 +284,8 @@ def page_by_slug(request):
             from wagtail.rich_text import RichText
             from wagtail.images.models import Image
             from datetime import date, datetime
+            from django.db.models import Manager
+            from modelcluster.queryset import FakeQuerySet
 
             # Handle StreamField
             if hasattr(field_value, 'stream_block'):
@@ -280,6 +310,39 @@ def page_by_slug(request):
             if isinstance(field_value, (date, datetime)):
                 return field_value.isoformat()
 
+            # Handle related managers (like team_members, etc.)
+            # Check if it's a related manager by checking for 'all' method and model attribute
+            if (hasattr(field_value, 'all') and callable(getattr(field_value, 'all', None)) and
+                hasattr(field_value, 'model')):
+                try:
+                    items = []
+                    for item in field_value.all():
+                        # Check if item has api_fields defined
+                        if hasattr(item, 'api_fields'):
+                            item_data = {}
+                            for api_field in item.api_fields:
+                                field_name = api_field.name
+                                try:
+                                    value = getattr(item, field_name)
+                                    item_data[field_name] = serialize_field_value(value)
+                                except:
+                                    pass
+                            items.append(item_data)
+                        else:
+                            # Fallback: just get basic fields
+                            item_data = {}
+                            for f in item._meta.fields:
+                                if not f.name.startswith('_') and f.name not in ['id', 'page', 'project', 'sort_order']:
+                                    try:
+                                        value = getattr(item, f.name)
+                                        item_data[f.name] = serialize_field_value(value)
+                                    except:
+                                        pass
+                            items.append(item_data)
+                    return items
+                except Exception as ex:
+                    return []
+
             return field_value
 
         # Add any other custom fields from the specific page model
@@ -289,13 +352,23 @@ def page_by_slug(request):
             if field_name not in data and not field_name.startswith('_') and field_name not in ['page_ptr', 'content_type']:
                 try:
                     field_value = getattr(page, field_name, None)
-                    # Convert to serializable format
-                    if field_value is not None and not callable(field_value):
+                    # Skip None values and callables
+                    if field_value is None or callable(field_value):
+                        continue
+
+                    # Special handling for related managers (reverse ForeignKey, InlinePanel, etc.)
+                    if hasattr(field_value, 'all') and hasattr(field_value, 'model'):
                         serialized_value = serialize_field_value(field_value)
+                        data[field_name] = serialized_value
+                    else:
+                        # Convert to serializable format
+                        serialized_value = serialize_field_value(field_value)
+                        # Only convert to string if it's not already a serializable type
                         if not isinstance(serialized_value, (str, int, bool, float, list, dict, type(None))):
                             serialized_value = str(serialized_value)
                         data[field_name] = serialized_value
-                except Exception:
+                except Exception as e:
+                    # Skip fields that cause errors
                     pass
 
         return Response(data)

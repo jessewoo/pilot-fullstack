@@ -97,3 +97,14 @@ export async function getSandboxProjects() {
     return [];
   }
 }
+
+// Fetch demonstration projects list
+export async function getDemonstrationProjects() {
+  try {
+    const response = await axios.get(`${API_URL}/demonstration-projects/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching demonstration projects:', error);
+    return [];
+  }
+}

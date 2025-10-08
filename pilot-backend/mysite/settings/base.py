@@ -23,23 +23,35 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 # Application definition
 
-INSTALLED_APPS = [
-    'wagtail.api.v2',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
+# CORE apps - fundamental to the platform
+CORE_APPS = [
     "authentication",
     "home",
     "search",
     "navigation",
     "content",
     "footer",
+]
+
+# Custom/Project-specific apps
+CUSTOM_APPS = [
     "team",
     "faq",
     "taxonomy",
     "sandbox",
+    "demonstration_projects",
+]
+
+INSTALLED_APPS = [
+    # Third-party dependencies
+    'wagtail.api.v2',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+] + CORE_APPS + CUSTOM_APPS + [
+    # Wagtail apps
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -54,6 +66,7 @@ INSTALLED_APPS = [
     "modelcluster",
     "taggit",
     "django_filters",
+    # Django core apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
